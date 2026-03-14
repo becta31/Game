@@ -1,1 +1,23 @@
+[
+  {
+    "id": 1,
+    "name": "Артем Дзюба (Мл)",
+    "age": 17,
+    "position": "ST",
+    "potential": 88,
+    "stamina": 60,
+    "last_match_minutes": 10,
+    "traits": ["высокий", "мощный"]
+  },
+  {
+    "id": 2,
+    "name": "Никита Чернов",
+    "age": 18,
+    "position": "CM",
+    "potential": 92,
+    "stamina": 75,
+    "last_match_minutes": 45,
+    "traits": ["лидер", "хороший пас"]
+  }
+]
 
