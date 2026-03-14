@@ -3,42 +3,40 @@ import json
 from openai import OpenAI
 from dotenv import load_dotenv
 
+# 1. Загружаем ключи из файла .env
 load_dotenv()
+my_token = os.getenv("GITHUB_TOKEN")
 
-# Инициализация клиента GitHub Models
+# ПРОВЕРКА: Видит ли код ключ?
+if not my_token:
+    print("ОШИБКА: Код не видит токен! Проверь файл .env")
+else:
+    print("ТОКЕН НАЙДЕН. Подключаюсь к Llama...")
+
+# 2. Настройка подключения к GitHub Models
 client = OpenAI(
     base_url="https://models.inference.ai.azure.com",
-    api_key=os.environ.get("GITHUB_TOKEN") # Убедись, что токен в .env
+    api_key=my_token
 )
 
-def load_squad():
-    with open('squad.json', 'r', encoding='utf-8') as f:
-        return json.load(f)
+def get_advice():
+    try:
+        # Читаем твоих игроков
+        with open('squad.json', 'r', encoding='utf-8') as f:
+            players = json.load(f)
+        
+        prompt = f"Вот мои молодые игроки: {players}. Кто из них самый перспективный и какую тренировку ему назначить?"
 
-def get_training_advice():
-    squad = load_squad()
-    
-    # Формируем промпт, заставляя ИИ анализировать данные
-    prompt = f"""
-    Ты — ИИ-ассистент футбольного тренера. Твоя задача — развивать молодежь.
-    Вот текущий список игроков: {json.dumps(squad, ensure_ascii=False)}
-    
-    Исходя из их потенциала и игрового времени в прошлом матче:
-    1. Кому из них НУЖНО дать больше времени в следующей игре?
-    2. Составь краткий план тренировок на неделю для каждого.
-    Отвечай четко, по-спортивному.
-    """
-
-    response = client.chat.completions.create(
-        messages=[{"role": "user", "content": prompt}],
-        model="meta-llama-3.1-8b-instruct",
-        temperature=0.7
-    )
-    
-    return response.choices[0].message.content
+        # ЗАПРОС К НЕЙРОНКЕ
+        response = client.chat.completions.create(
+            messages=[{"role": "user", "content": prompt}],
+            model="meta-llama-3.1-8b-instruct"
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        return f"Ошибка при запросе: {e}"
 
 if __name__ == "__main__":
-    print("--- Анализ состава запущен ---")
-    advice = get_training_advice()
-    print(advice)
-
+    if my_token:
+        print("--- ИИ-Тренер анализирует состав... ---")
+        print(get_advice())
